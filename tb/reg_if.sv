@@ -1,11 +1,11 @@
 interface reg_if
-  (
-   input logic clk,
-   input logic rst_n
-  );
+	(
+		input logic clk,
+		input logic rst
+	);
 
-   logic  [15:0] data_in;
-   logic  [1:0]  addr;
-   logic  valid_reg; 
+	logic [1:0]     addr;
+	logic [15:0] data_in;
+	logic 	   valid_reg;
 
-endinterface
+endinterface 
