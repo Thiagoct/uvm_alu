@@ -1,18 +1,18 @@
-typedef virtual interface_if.mst interface_vif;
+typedef virtual reg_if reg_vif;
 
-class driver extends uvm_driver #(transaction_in);
-    `uvm_component_utils(driver)
-    interface_vif vif;
-    event begin_record, end_record;
-    transaction_in tr;
+class reg_driver extends uvm_driver #(reg_transaction);
+    `uvm_component_utils(reg_driver)
 
-    function new(string name = "driver", uvm_component parent = null);
+    reg_vif vif;
+    reg_transaction rt;
+
+    function new(string name = "reg_driver", uvm_component parent = null);
         super.new(name, parent);
     endfunction
 
     virtual function void build_phase(uvm_phase phase);
         super.build_phase(phase);
-         if(!uvm_config_db#(interface_vif)::get(this, "", "vif", vif)) begin
+         if(!uvm_config_db#(reg_vif)::get(this, "", "vif", vif)) begin
             `uvm_fatal("NOVIF", "failed to get virtual interface")
         end
     endfunction
@@ -27,8 +27,7 @@ class driver extends uvm_driver #(transaction_in);
     virtual task reset_signals();    
         wait (vif.rst === 0);
         forever begin
-            vif.enb_i <= '0;  
-            vif.dt_i  <= '0;
+            vif.valid_reg  <= '0;
             @(negedge vif.rst);
         end
     endtask : reset_signals
@@ -37,18 +36,17 @@ class driver extends uvm_driver #(transaction_in);
         wait (vif.rst === 0);
         @(posedge vif.rst);
         forever begin
-            seq_item_port.get_next_item(tr);
-            driver_transfer(tr);
+            seq_item_port.get_next_item(rt);
+            driver_transfer(rt);
             seq_item_port.item_done();
         end
     endtask : get_and_drive
 
-    virtual task driver_transfer(transaction_in tr);
+    virtual task driver_transfer(reg_transaction rt);
         @(posedge vif.clk);
         $display("",);
-        vif.dt_i <= tr.data;
-        vif.enb_i   <= '1;
-        @(posedge vif.busy_o);
+        vif.data_in <= rt.data_in;
+        vif.addr  <= rt.addr;
     endtask : driver_transfer
 
 endclass

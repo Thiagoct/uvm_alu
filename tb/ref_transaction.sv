@@ -1,5 +1,5 @@
-class transaction_in extends uvm_sequence_item;
-  rand bit [7:0] data;
+class ref_transaction extends uvm_sequence_item;
+  rand bit [31:0] data_out;
 
   function new(string name = "");
     super.new(name);
@@ -10,6 +10,6 @@ class transaction_in extends uvm_sequence_item;
   `uvm_object_utils_end
 
   function string convert2string();
-    return $sformatf("{data = %d}",data);
+    return $sformatf("{data_out = %d}",data_out);
   endfunction
 endclass
