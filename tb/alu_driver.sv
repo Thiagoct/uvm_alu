@@ -1,22 +1,25 @@
 typedef virtual alu_if alu_vif;
 
-class driver extends uvm_driver #(alu_transaction);
-    `uvm_component_utils(driver)
-    interface_vif vif;
+class alu_driver extends uvm_driver #(alu_transaction);
+    `uvm_component_utils(alu_driver)
+    alu_vif vif;
     event begin_record, end_record;
-    transaction_in tr;
+    alu_transaction alu_tr;
 
-    function new(string name = "driver", uvm_component parent = null);
+// ------------------------------ Macro --------------------------------//
+    function new(string name = "alu_driver", uvm_component parent = null);
         super.new(name, parent);
     endfunction
 
+// --------------------------- Build Phase -----------------------------//
     virtual function void build_phase(uvm_phase phase);
         super.build_phase(phase);
-         if(!uvm_config_db#(interface_vif)::get(this, "", "vif", vif)) begin
+         if(!uvm_config_db#(alu_vif)::get(this, "", "vif", vif)) begin
             `uvm_fatal("NOVIF", "failed to get virtual interface")
         end
     endfunction
 
+// ---------------------------- Run Phase ------------------------------//
     task run_phase (uvm_phase phase);
         fork
             reset_signals();
@@ -24,31 +27,42 @@ class driver extends uvm_driver #(alu_transaction);
         join
     endtask
 
-    virtual task reset_signals();    
-        wait (vif.rst === 0);
-        forever begin
-            vif.enb_i <= '0;  
-            vif.dt_i  <= '0;
-            @(negedge vif.rst);
-        end
-    endtask : reset_signals
 
-    virtual task get_and_drive(uvm_phase phase);
-        wait (vif.rst === 0);
-        @(posedge vif.rst);
-        forever begin
-            seq_item_port.get_next_item(tr);
-            driver_transfer(tr);
-            seq_item_port.item_done();
-        end
-    endtask : get_and_drive
+// 			Reset
+/**/			virtual task reset_signals();    
+/**/			    wait (vif.rst === 0);
+/**/			    forever begin
+/**/			        vif.valid_ula  <= '0;  
+/**/			        vif.valid_out  <= '0;
+/**/			        @(negedge vif.rst);
+/**/			    end
+/**/			endtask : reset_signals
+			
 
-    virtual task driver_transfer(transaction_in tr);
-        @(posedge vif.clk);
-        $display("",);
-        vif.dt_i <= tr.data;
-        vif.enb_i   <= '1;
-        @(posedge vif.busy_o);
-    endtask : driver_transfer
+// 			Get and drive
+/**/			virtual task get_and_drive(uvm_phase phase);
+/**/			    wait (vif.rst === 0);
+/**/			    @(posedge vif.rst);
+/**/			    forever begin
+/**/			        seq_item_port.get_next_item(alu_tr);
+/**/			        driver_transfer(alu_tr);
+/**/			        seq_item_port.item_done();
+/**/			    end
+/**/			endtask : get_and_drive
+			
+
+// 			Driver Transfer
+/**/			virtual task driver_transfer(alu_transaction alu_tr);
+/**/			    @(posedge vif.clk);
+/**/
+/**/					alu_if.valid_ula <= 1;
+/**/					alu_if.valid_out <= 1;
+/**/
+/**/					alu_if.A 		<= alu_tr.A;
+/**/					alu_if.reg_sel	<= alu;
+/**/					alu_if.instru;
+/**/					alu_if.data_out;
+
+/**/			endtask : driver_transfer
 
 endclass

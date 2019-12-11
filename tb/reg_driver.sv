@@ -27,7 +27,7 @@ class reg_driver extends uvm_driver #(reg_transaction);
     virtual task reset_signals();    
         wait (vif.rst === 0);
         forever begin
-            vif.valid_reg  <= '0;
+            vif.valid_reg  <= 0;
             @(negedge vif.rst);
         end
     endtask : reset_signals
@@ -44,9 +44,9 @@ class reg_driver extends uvm_driver #(reg_transaction);
 
     virtual task driver_transfer(reg_transaction rt);
         @(posedge vif.clk);
-        $display("",);
-        vif.data_in <= rt.data_in;
-        vif.addr  <= rt.addr;
+        vif.data_in     <= rt.data_in;
+        vif.addr        <= rt.addr;
+        vif.valid_reg   <= 1;
     endtask : driver_transfer
 
 endclass
