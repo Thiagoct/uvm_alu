@@ -1,7 +1,7 @@
-class sequence_in extends uvm_sequence #(transaction_in);
-    `uvm_object_utils(sequence_in)
+class alu_sequence extends uvm_sequence #(alu_transaction);
+    `uvm_object_utils(alu_sequence)
 
-    function new(string name="sequence_in");
+    function new(string name = "alu_sequence");
         super.new(name);
     endfunction: new
 
