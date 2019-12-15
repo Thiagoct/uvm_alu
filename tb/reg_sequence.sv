@@ -9,10 +9,10 @@ class reg_sequence extends uvm_sequence #(reg_transaction);
         reg_transaction tr;
 
         forever begin
-            tr = transaction_in::type_id::create("tr");
+            tr = reg_transaction::type_id::create("tr");
             start_item(tr);
             assert(tr.randomize());
             finish_item(tr);
         end
     endtask: body
-endclass: sequence_in
+endclass: reg_sequence

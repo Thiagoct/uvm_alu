@@ -4,7 +4,7 @@ class reg_driver extends uvm_driver #(reg_transaction);
     `uvm_component_utils(reg_driver)
 
     reg_vif vif;
-    reg_transaction rt;
+    reg_transaction tr;
 
     function new(string name = "reg_driver", uvm_component parent = null);
         super.new(name, parent);
@@ -27,7 +27,9 @@ class reg_driver extends uvm_driver #(reg_transaction);
     virtual task reset_signals();    
         wait (vif.rst === 0);
         forever begin
-            vif.valid_reg  <= 0;
+            vif.valid_reg  <= '0;
+            vif_addr       <= '0;
+            vif_data_i     <= '0;
             @(negedge vif.rst);
         end
     endtask : reset_signals
@@ -36,16 +38,16 @@ class reg_driver extends uvm_driver #(reg_transaction);
         wait (vif.rst === 0);
         @(posedge vif.rst);
         forever begin
-            seq_item_port.get_next_item(rt);
-            driver_transfer(rt);
+            seq_item_port.get_next_item(tr);
+            driver_transfer(tr);
             seq_item_port.item_done();
         end
     endtask : get_and_drive
 
-    virtual task driver_transfer(reg_transaction rt);
+    virtual task driver_transfer(reg_transaction tr);
         @(posedge vif.clk);
-        vif.data_in     <= rt.data_in;
-        vif.addr        <= rt.addr;
+        vif.data_in     <= tr.data_in;
+        vif.addr        <= tr.addr;
         vif.valid_reg   <= 1;
     endtask : driver_transfer
 

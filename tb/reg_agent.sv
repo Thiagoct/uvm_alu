@@ -1,32 +1,28 @@
-class agent extends uvm_agent;
-    
-    typedef uvm_sequencer#(transaction_in) sequencer;
-    sequencer  sqr;
-    driver   drv;
-    monitor  mon;
+ typedef uvm_sequencer#(transaction_in) sequencer;
 
-    uvm_analysis_port #(transaction_in) agt_req_port;
-    uvm_analysis_port #(transaction_out) agt_resp_port;
+class agent extends uvm_agent;   
+   
+    reg_sequencer  reg_sqr;
+    reg_driver   reg_drv;
+    reg_monitor  reg_mon;
+    uvm_analysis_port #(reg_transaction) reg_agt_port;
+    `uvm_component_utils(reg_agent)
 
-    `uvm_component_utils(agent)
-
-    function new(string name = "agent", uvm_component parent = null);
+    function new(string name = "reg_agent", uvm_component parent = null);
         super.new(name, parent);
-        agt_req_port  = new("agt_req_port", this);
-        agt_resp_port = new("agt_resp_port", this);
+        reg_agt_port  = new("reg_agt_port", this);
     endfunction
 
     virtual function void build_phase(uvm_phase phase);
         super.build_phase(phase);
-        mon = monitor::type_id::create("mon", this);
-        sqr = sequencer::type_id::create("sqr", this);
-        drv = driver::type_id::create("drv", this);
+        reg_mon = reg_monitor::type_id::create("reg_mon", this);
+        reg_sqr = reg_sequencer::type_id::create("reg_sqr", this);
+        reg_drv = reg_driver::type_id::create("reg_drv", this);
     endfunction
 
     virtual function void connect_phase(uvm_phase phase);
         super.connect_phase(phase);
-        mon.req_port.connect(agt_req_port);
-        mon.resp_port.connect(agt_resp_port);
-        drv.seq_item_port.connect(sqr.seq_item_export);
+         reg_mon.reg_port.connect(reg_agt_port);
+         reg_drv.seq_item_port.connect(reg_sqr.seq_item_export);
     endfunction
-endclass: agent
+endclass: reg_agent
